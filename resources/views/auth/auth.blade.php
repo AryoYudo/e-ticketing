@@ -22,7 +22,7 @@
                 <p class="text-muted mb-4">Sign in to manage and personalize your Tixboom events.</p>
 
                 {{-- Form Login --}}
-                <form method="POST">
+                <form>
                     @csrf
                     <div class="mb-3">
                         <label for="email" class="form-label fw-semibold">Username</label>
@@ -34,7 +34,7 @@
                         <input type="password" name="password" id="password" class="form-control" placeholder="Fill your password here" required>
                     </div>
 
-                    <button  type="submit" class="btn w-100 text-white fw-bold" style="background-color: #B487F8; box-shadow: 4px 4px 0px #000;">
+                    <button href="{{ route('dashboard') }}"  type="submit" class="btn w-100 text-white fw-bold" style="background-color: #B487F8; box-shadow: 4px 4px 0px #000;">
                         Login
                     </button>
                 </form>
