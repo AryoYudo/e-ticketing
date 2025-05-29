@@ -5,6 +5,7 @@ use App\Http\Controllers\StartController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\DetailController;
 use App\Http\Controllers\BuyController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,8 @@ use App\Http\Controllers\BuyController;
 //     return view('welcome');
 // });
 
-Route::get('/start', [StartController::class, 'start']);
+Route::get('/', [StartController::class, 'start']);
 Route::get('/events', [EventController::class, 'events'])->name('events');
 Route::get('/detail', [DetailController::class, 'detail'])->name('detail');
 Route::get('/buy', [BuyController::class, 'buy'])->name('buy');
+Route::get('/auth', [AuthController::class, 'auth'])->name('auth');
