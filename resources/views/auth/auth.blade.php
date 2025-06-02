@@ -52,19 +52,16 @@
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const formLogin = $('#formLogin');
-
     formLogin.submit(function(e) {
         e.preventDefault();
-
         const btnLogin = $('#btnLogin');
         btnLogin.prop('disabled', true).text('Logging in...');
-
         const emailAdmin = $('#emailAdmin').val();
         const password = $('#password').val();
 
-        console.log(emailAdmin, password);
         $.ajax({
             url: '{{ route('auth.login') }}',
             method: 'POST',
@@ -74,18 +71,63 @@
                 password: password,
             },
             dataType: 'json',
+            beforeSend: function() {
+                btnLogin.prop('disabled', true).text('Logging in...');
+            },
             success: function(res) {
+                btnLogin.prop('disabled', false).text('Login');
+
                 if (res.status === 200) {
                     formLogin[0].reset();
-                    window.location = '{{ route('dashboard') }}';
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful',
+                        text: res.message,
+                        showConfirmButton: false,
+                        timer: 1500  // popup akan hilang otomatis dalam 1.5 detik
+                    }).then(() => {
+                        window.location = '{{ route('dashboard') }}';
+                    });
+                }
+                else if (res.status === 401) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: res.message
+                    });
+                }
+                else if (res.status === 500) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: res.message
+                    });
+                }
+                else if (res.status === 422) {
+                    let errorMessages = '';
+                    for (const key in res.errors) {
+                        if (res.errors.hasOwnProperty(key)) {
+                            errorMessages += res.errors[key].join(' ') + '\n';
+                        }
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Errors',
+                        text: errorMessages
+                    });
                 }
             },
             error: function(res) {
-                let message = res.responseJSON?.MESSAGE || 'Login failed';
-                alert(message);
                 btnLogin.prop('disabled', false).text('Login');
+                let message = res.responseJSON?.message || 'Login failed';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: message
+                });
             }
-        });
-    });
+        });  // Tutup $.ajax
+    });  // Tutup formLogin.submit
+
 </script>
 @endsection

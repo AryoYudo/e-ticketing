@@ -18,52 +18,69 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // Step 1: Validasi
-        $request->validate([
-            'emailAdmin' => 'required|email',
-            'password' => 'required',
-        ]);
+        try {
+            // Step 1: Validasi
+            $request->validate([
+                'emailAdmin' => 'required|email',
+                'password' => 'required|min:6|max:15',
+            ]);
 
-        // Step 2: Ambil input dari ajax
-        $email = $request->input('emailAdmin');
-        $password = $request->input('password');
+            // Step 2: Ambil input dari ajax
+            $email = $request->input('emailAdmin');
+            $password = $request->input('password');
 
-        // Step 3: Ambil user dari DB
-        $admin = DB::table('admin')->where('email', $email)->first();
-        if (!$admin) {
+            // Step 3: Ambil user dari DB
+            $admin = DB::table('admin')->where('email', $email)->first();
+            if (!$admin) {
+                return response()->json([
+                    'status' => 401,
+                    'message' => 'Email not found'
+                ], 401);
+            }
+
+            // Step 4: Cek password
+            $hashedPassword = $admin->passwrd ?? $admin->password;
+            if (!$hashedPassword) {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Password field is missing in DB'
+                ]);
+            }
+
+            if (!Hash::check($password, $hashedPassword)) {
+                return response()->json([
+                    'status' => 401,
+                    'message' => 'Incorrect password'
+                ], 401);
+            }
+
+            // Step 5: Simpan session
+            $request->session()->put('loggedInUser', [
+                'email' => $admin->email,
+            ]);
+
             return response()->json([
-                'status' => 401,
-                'message' => 'Email not found'
-            ], 401);
-        }
+                'status' => 200,
+                'message' => 'Successfully logged in'
+            ]);
 
-        // Step 4: Cek password
-        $hashedPassword = $admin->passwrd ?? $admin->password;
-        // Cek isi hashed password
-        if (!$hashedPassword) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Kalau validasi gagal
+            return response()->json([
+                'status' => 422,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            // Kalau error lain, misal DB error dll
             return response()->json([
                 'status' => 500,
-                'message' => 'Password field is missing in DB'
-            ]);
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
         }
-
-        if (!Hash::check($password, $hashedPassword)) {
-            return response()->json([
-                'status' => 401,
-                'message' => 'Incorrect password'
-            ], 401);
-        }
-
-        // Step 5: Simpan session
-        $request->session()->put('loggedInUser', [
-            'email' => $admin->email,
-        ]);
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Successfully logged in'
-        ]);
     }
+
 
 
 
