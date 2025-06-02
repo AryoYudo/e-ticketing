@@ -23,12 +23,16 @@ use App\Http\Controllers\DashboardController;
 //     return view('welcome');
 // });
 
+Route::get('/', [StartController::class, 'start']);
+
 // {auth admin}
 Route::get('/auth', [AuthController::class, 'auth'])->name('auth');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 
-Route::get('/', [StartController::class, 'start']);
+// {evets admin}
 Route::get('/events', [EventController::class, 'events'])->name('events');
+Route::get('/listEvents', [EventController::class, 'listEvents'])->name('listEvents');
+
 Route::get('/detail', [DetailController::class, 'detail'])->name('detail');
 Route::get('/buy', [BuyController::class, 'buy'])->name('buy');
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');

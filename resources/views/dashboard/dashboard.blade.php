@@ -2,7 +2,7 @@
 
 @section('content')
 <style>
-    
+
 </style>
 <div class="container-fluid py-4">
     <div class="row">
@@ -40,26 +40,26 @@
 
         {{-- Main Dashboard --}}
          <div class="col-md-10 offset-md-2 overflow-auto vh-100" id="mainDashboard">
-            <h4 class="fw-bold mb-4">Dashboard</h4>
+            <h2 class="fw-bol p-4">Dashboard</h2>
 
             {{-- Cards --}}
-            <div class="row mb-4">
+            <div class="row mb-4 p-4">
                 <div class="col-md-4">
                     <div class="p-4 bg-white rounded-4 shadow">
                         <div class="text-muted mb-2">Total List Event</div>
-                        <h4 class="fw-bold">24</h4>
+                        <h4 class="fw-bold" id="totalEvents">0</h4>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="p-4 bg-white rounded-4 shadow">
                         <div class="text-muted mb-2">Total Income</div>
-                        <h4 class="fw-bold">Rp 20.000.000</h4>
+                        <h4 class="fw-bold" id="totalIncome">Rp 0</h4>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="p-4 bg-white rounded-4 shadow">
                         <div class="text-muted mb-2">Total Orders</div>
-                        <h4 class="fw-bold">3,500</h4>
+                        <h4 class="fw-bold" id="totalOrders">0</h4>
                     </div>
                 </div>
             </div>
@@ -78,31 +78,14 @@
                             <th>Payment Total</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @php $tickets = [
-                            ['event' => 'Tulus : Manusia Vol I', 'name' => 'Chieko Chute', 'type' => 'VIP Front Seat', 'price' => 'Rp 800.000'],
-                            ['event' => 'Tulus : Manusia Vol I', 'name' => 'Annabel Rohan', 'type' => 'VIP Front Seat', 'price' => 'Rp 800.000'],
-                            ['event' => 'Tulus : Manusia Vol I', 'name' => 'Pedro Huard', 'type' => 'Festival Seat', 'price' => 'Rp 400.000'],
-                            ['event' => 'ST12 : Mengenjreng Dunia', 'name' => 'Jamel Eusebio', 'type' => 'Festival Seat', 'price' => 'Rp 400.000'],
-                            ['event' => 'ST12 : Mengenjreng Dunia', 'name' => 'Augustina Midgett', 'type' => 'Festival Seat', 'price' => 'Rp 400.000'],
-                        ]; @endphp
-                        @foreach ($tickets as $index => $ticket)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $ticket['event'] }}<br><span class="text-muted small">#ID238976</span></td>
-                            <td>{{ $ticket['name'] }}</td>
-                            <td>Apr 24, 2022, 07.20</td>
-                            <td>{{ $ticket['type'] }}</td>
-                            <td>{{ $ticket['price'] }}</td>
-                        </tr>
-                        @endforeach
+                    <tbody id="ticketBody">
                     </tbody>
                 </table>
             </div>
         </div>
 
         {{-- List Event --}}
-        <div class="col-md-10 d-none" id="listEvent">
+        <div class="col-md-10 d-none p-4 " id="listEvent">
             <h4>List Event</h4>
            <div class="d-flex align-items-center mb-3" style="gap: 40px;">
                 <input type="text" id="searchBox" class="form-control" placeholder="Search by ID, product, or others..." style="height: 40px;">
@@ -166,16 +149,10 @@
 
 <script>
     $(document).ready(function () {
-        $('#ticketTable').DataTable({
-            paging: true,
-            pageLength: 5,
-            lengthChange: false,
-            info: false
-        });
-
         $('#eventTable').DataTable({
             paging: true,
             pageLength: 6,
+            searching: false,
             lengthChange: false,
             info: false
         });
@@ -200,5 +177,68 @@
             $('#dashboardLink').removeClass('active').css('background-color', '');
         });
     });
+
+    $(document).ready(function () {
+        $.ajax({
+            url: '{{ route("listEvents") }}',
+            method: 'GET',
+            success: function (response) {
+                if (response.status === 200) {
+                    const data = response.data;
+                    // Update cards
+                    $('#totalEvents').text(data.totalEvents);
+                    $('#totalIncome').text('Rp ' + formatRupiah(data.totalIncome));
+                    $('#totalOrders').text(data.totalOrders);
+
+                    // Update table
+                    let tbody = '';
+                    data.listOrders.forEach((order, index) => {
+                        tbody += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${order.event_title}<br><span class="text-muted small">#ID${order.order_id}</span></td>
+                                <td>${order.buyer_name}</td>
+                                <td>${formatDate(order.start_date)}</td>
+                                <td>${order.ticket_type}</td>
+                                <td>Rp ${formatRupiah(order.total_payment)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    $('#ticketBody').html(tbody);
+                    $('#ticketTable').DataTable({
+                        paging: true,
+                        searching: false,
+                        pageLength: 5,
+                        lengthChange: false,
+                        info: false
+                    });
+                } else {
+                    console.error('Gagal mengambil data:', response.message);
+                }
+            },
+            error: function (xhr) {
+                console.error('Terjadi kesalahan:', xhr.responseText);
+            }
+        });
+
+        // Formatter helpers
+        function formatRupiah(angka) {
+            return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        }
+    });
+
 </script>
 @endsection
