@@ -23,9 +23,12 @@ use App\Http\Controllers\DashboardController;
 //     return view('welcome');
 // });
 
+// {auth admin}
+Route::get('/auth', [AuthController::class, 'auth'])->name('auth');
+Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
+
 Route::get('/', [StartController::class, 'start']);
 Route::get('/events', [EventController::class, 'events'])->name('events');
 Route::get('/detail', [DetailController::class, 'detail'])->name('detail');
 Route::get('/buy', [BuyController::class, 'buy'])->name('buy');
-Route::get('/auth', [AuthController::class, 'auth'])->name('auth');
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');

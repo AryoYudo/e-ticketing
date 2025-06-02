@@ -22,11 +22,11 @@
                 <p class="text-muted mb-4">Sign in to manage and personalize your Tixboom events.</p>
 
                 {{-- Form Login --}}
-                <form>
+                <form id="formLogin">
                     @csrf
                     <div class="mb-3">
                         <label for="email" class="form-label fw-semibold">Username</label>
-                        <input type="email" name="email" id="email" class="form-control" placeholder="your@email.com" required>
+                        <input type="email" name="email" id="emailAdmin" class="form-control" placeholder="your@email.com" required>
                     </div>
 
                     <div class="mb-4">
@@ -34,7 +34,7 @@
                         <input type="password" name="password" id="password" class="form-control" placeholder="Fill your password here" required>
                     </div>
 
-                    <button href="{{ route('dashboard') }}"  type="submit" class="btn w-100 text-white fw-bold" style="background-color: #B487F8; box-shadow: 4px 4px 0px #000;">
+                    <button type="submit" id="btnLogin" class="btn w-100 text-white fw-bold" style="background-color: #B487F8; box-shadow: 4px 4px 0px #000;">
                         Login
                     </button>
                 </form>
@@ -47,4 +47,45 @@
         </div>
     </div>
 </div>
+@endsection
+
+
+@section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const formLogin = $('#formLogin');
+
+    formLogin.submit(function(e) {
+        e.preventDefault();
+
+        const btnLogin = $('#btnLogin');
+        btnLogin.prop('disabled', true).text('Logging in...');
+
+        const emailAdmin = $('#emailAdmin').val();
+        const password = $('#password').val();
+
+        console.log(emailAdmin, password);
+        $.ajax({
+            url: '{{ route('auth.login') }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                emailAdmin: emailAdmin,
+                password: password,
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.status === 200) {
+                    formLogin[0].reset();
+                    window.location = '{{ route('dashboard') }}';
+                }
+            },
+            error: function(res) {
+                let message = res.responseJSON?.MESSAGE || 'Login failed';
+                alert(message);
+                btnLogin.prop('disabled', false).text('Login');
+            }
+        });
+    });
+</script>
 @endsection
