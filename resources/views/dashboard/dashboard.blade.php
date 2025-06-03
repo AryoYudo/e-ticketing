@@ -15,16 +15,16 @@
                 </div>
 
                 <ul class="nav nav-pills flex-column mb-auto w-100">
-                    <li class="nav-item mb-2">
-                        <a href="#" id="dashboardLink" class="nav-link text-dark fw-semibold" style="background-color: #B487F8;">
-                            <i class="bi bi-grid me-2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item mb-4" >
-                        <a href="#" id="listEventLink" class="nav-link text-dark fw-semibold">
-                            <i class="bi bi-card-list me-2"></i> List Event
-                        </a>
-                    </li>
+                        <li class="nav-item mb-2">
+                            <a href="#" id="dashboardLink" class="nav-link text-dark fw-semibold" style="background-color: #B487F8;">
+                                <i class="bi bi-grid me-2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item mb-4" >
+                            <a href="#" id="listEventLink" class="nav-link text-dark fw-semibold">
+                                <i class="bi bi-card-list me-2"></i> List Event
+                            </a>
+                        </li>
                 </ul>
 
                 <div class="mt-auto w-100 mb-4  ">
@@ -89,9 +89,82 @@
             <h4>List Event</h4>
            <div class="d-flex align-items-center mb-3" style="gap: 40px;">
                 <input type="text" id="searchBox" class="form-control" placeholder="Search by ID, product, or others..." style="height: 40px;">
-                <button class="btn btn-primary" style="background-color: #a78bfa; border: none; height: 40px;">
-                    + Add Event
+                <button class="btn btn-primary" id="openModalBtn" style="background-color: #a78bfa; border: none; height: 40px;">
+                    + Add
                 </button>
+            </div>
+            <div id="addEventModal" class="modal d-none" tabindex="-1" style="display: block;" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addEventModalLabel">Add Event</h5>
+                        <button type="button" class="btn-close close-modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please provide correct and complete information in the fields below.</p>
+
+                        <form id="eventForm">
+                            <div class="mb-3">
+                                <label class="form-label">Title *</label>
+                                <input type="text" class="form-control" placeholder="Input Event Title">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Short Description (Max. 30) *</label>
+                                <input type="text" class="form-control" placeholder="Input Short Description">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Date *</label>
+                                <input type="date" class="form-control">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Location *</label>
+                                <input type="text" class="form-control" placeholder="Input Event Location">
+                            </div>
+
+                            <div class="row mb-3" id="ticketTypes">
+                                <div class="col-md-4">
+                                    <label class="form-label">Title Type *</label>
+                                    <input type="text" class="form-control" placeholder="Input Title Type">
+                                </div>
+                                <div class="col-md-4">
+                                <label class="form-label">Price *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" value="0">
+                                </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Total Seat *</label>
+                                    <input type="number" class="form-control" value="0">
+                                </div>
+                            </div>
+
+                            <div class="text-center mb-3">
+                                <button type="button" class="btn btn-sm w-100" style="border: 1px solid #a78bfa; color: #a78bfa;">+ Add Different Ticket Type</button>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description *</label>
+                                <textarea class="form-control" rows="4" placeholder="Input Description"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Thumbnail Event *</label>
+                                <input type="file" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Upload Seat Mapping Image</label>
+                                 <input type="file" class="form-control">
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary w-100 close-modal" style="background-color: #a78bfa;">Add Event</button>
+                    </div>
+                    </div>
+                </div>
             </div>
 
             <table id="eventTable" class="table">
@@ -176,7 +249,18 @@
             $('#listEventLink').addClass('active').css('background-color', '#B487F8');
             $('#dashboardLink').removeClass('active').css('background-color', '');
         });
+        $('#openModalBtn').click(function () {
+            $('#addEventModal').removeClass('d-none').addClass('show');
+            $('#backdrop').removeClass('d-none');
+        });
+
+        $('.close-modal').click(function () {
+            $('#addEventModal').removeClass('show').addClass('d-none');
+            $('#backdrop').addClass('d-none');
+        });
     });
+    // $(document).ready(function () {
+    // });
 
     $(document).ready(function () {
         $.ajax({
