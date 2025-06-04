@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
-    public function dashboard()
-    {
-        return view('dashboard.dashboard'); // ini mengarah ke resources/views/selectEvent.blade.php
-    }
+    // public function dashboard()
+    // {
+    //     return view('dashboard.dashboard'); // ini mengarah ke resources/views/selectEvent.blade.php
+    // }
 
     public function listEvents()
     {
@@ -117,6 +117,35 @@ class DashboardController extends Controller
                 'status' => 500,
                 'message' => 'Gagal menambahkan event: ' . $e->getMessage(),
             ]);
+        }
+    }
+
+    public function showEventList()
+    {
+        try {
+            // Ambil data events dan jumlah tipe tiket
+            $events = DB::table('events')
+                ->leftJoin('ticket_types', 'events.id', '=', 'ticket_types.event_id')
+                ->select(
+                    'events.id',
+                    'events.title',
+                    'events.location',
+                    'events.start_date',
+                    DB::raw('COUNT(ticket_types.id) as type'),
+                    DB::raw("CASE
+                                WHEN COUNT(ticket_types.id) = 0 THEN 'Sold'
+                                ELSE 'Available'
+                            END as status")
+                )
+                ->groupBy('events.id', 'events.title', 'events.location', 'events.start_date')
+                ->orderByDesc('events.created_at')
+                ->get();
+
+            return view('dashboard.dashboard', compact('events')); // Ganti 'yourbladefilename' sesuai Blade kamu
+
+        } catch (\Exception $e) {
+            Log::error('Gagal memuat daftar event: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memuat data event.');
         }
     }
 }

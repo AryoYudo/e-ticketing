@@ -39,3 +39,4 @@ Route::get('/buy', [BuyController::class, 'buy'])->name('buy');
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 Route::get('/listEvents', [DashboardController::class, 'listEvents'])->name('listEvents');
 Route::post('/addEvent', [DashboardController::class, 'addEvent'])->name('addEvent');
+Route::get('/dashboard', [DashboardController::class, 'showEventList'])->name('dashboard');

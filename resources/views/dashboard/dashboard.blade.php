@@ -186,32 +186,28 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $events = [
-                            ['title' => 'SmokeShack Burger', 'location' => 'Chieko Chute', 'date' => 'Apr 24, 2022', 'type' => 3, 'status' => 'Available'],
-                            ['title' => 'SmokeShack Burger', 'location' => 'Chieko Chute', 'date' => 'Apr 24, 2022', 'type' => 3, 'status' => 'Sold'],
-                            ['title' => 'SmokeShack Burger', 'location' => 'Chieko Chute', 'date' => 'Apr 24, 2022', 'type' => 3, 'status' => 'Available'],
-                            ['title' => 'SmokeShack Burger', 'location' => 'Chieko Chute', 'date' => 'Apr 24, 2022', 'type' => 3, 'status' => 'Sold'],
-                            ['title' => 'SmokeShack Burger', 'location' => 'Chieko Chute', 'date' => 'Apr 24, 2022', 'type' => 3, 'status' => 'Available'],
-                            ['title' => 'SmokeShack Burger', 'location' => 'Chieko Chute', 'date' => 'Apr 24, 2022', 'type' => 3, 'status' => 'Available'],
-                        ];
-                    @endphp
-                    @foreach($events as $index => $event)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $event['title'] }}</td>
-                        <td>{{ $event['location'] }}</td>
-                        <td>{{ $event['date'] }}</td>
-                        <td>{{ $event['type'] }}</td>
-                        <td>
-                            <span class="{{ $event['status'] == 'Available' ? 'badge bg-success' : 'badge bg-danger' }}">
-                                {{ $event['status'] }}
-                            </span>
-                        </td>
-                        <td>⋮</td>
-                    </tr>
-                    @endforeach
+                    @if(isset($events))
+                        @foreach($events as $index => $event)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $event->title }}</td>
+                                <td>{{ $event->location }}</td>
+                                <td>{{ \Carbon\Carbon::parse($event->start_date)->format('M d, Y') }}</td>
+                                <td>{{ $event->type }}</td>
+                                <td>
+                                    <span class="{{ $event->status == 'Available' ? 'badge bg-success' : 'badge bg-danger' }}">
+                                        {{ $event->status }}
+                                    </span>
+                                </td>
+                                <td>⋮</td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr><td colspan="7">Tidak ada data events</td></tr>
+                    @endif
+
                 </tbody>
+
             </table>
         </div>
 
