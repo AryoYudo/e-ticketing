@@ -31,8 +31,11 @@ Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login')
 
 // {evets admin}
 Route::get('/events', [EventController::class, 'events'])->name('events');
-Route::get('/listEvents', [EventController::class, 'listEvents'])->name('listEvents');
 
 Route::get('/detail', [DetailController::class, 'detail'])->name('detail');
+
 Route::get('/buy', [BuyController::class, 'buy'])->name('buy');
+
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+Route::get('/listEvents', [DashboardController::class, 'listEvents'])->name('listEvents');
+Route::post('/addEvent', [DashboardController::class, 'addEvent'])->name('addEvent');

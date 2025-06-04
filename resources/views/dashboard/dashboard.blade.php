@@ -87,10 +87,10 @@
         {{-- List Event --}}
         <div class="col-md-10 d-none p-4 " id="listEvent">
             <h4>List Event</h4>
-           <div class="d-flex align-items-center mb-3" style="gap: 40px;">
+           <div class="d-flex align-items-center mb-3" style="gap: 60px;">
                 <input type="text" id="searchBox" class="form-control" placeholder="Search by ID, product, or others..." style="height: 40px;">
                 <button class="btn btn-primary" id="openModalBtn" style="background-color: #a78bfa; border: none; height: 40px;">
-                    + Add
+                    Add
                 </button>
             </div>
             <div id="addEventModal" class="modal d-none" tabindex="-1" style="display: block;" aria-hidden="true">
@@ -106,62 +106,68 @@
                         <form id="eventForm">
                             <div class="mb-3">
                                 <label class="form-label">Title *</label>
-                                <input type="text" class="form-control" placeholder="Input Event Title">
+                                <input id="inputTitle" type="text" class="form-control" placeholder="Input Event Title">
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Short Description (Max. 30) *</label>
-                                <input type="text" class="form-control" placeholder="Input Short Description">
+                                <input id="inputShortDes" type="text" class="form-control" placeholder="Input Short Description">
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Date *</label>
-                                <input type="date" class="form-control">
+                                <input id="idStartDate" type="date" class="form-control">
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Location *</label>
-                                <input type="text" class="form-control" placeholder="Input Event Location">
+                                <input id="idLocation" type="text" class="form-control" placeholder="Input Event Location">
                             </div>
 
-                            <div class="row mb-3" id="ticketTypes">
-                                <div class="col-md-4">
-                                    <label class="form-label">Title Type *</label>
-                                    <input type="text" class="form-control" placeholder="Input Title Type">
-                                </div>
-                                <div class="col-md-4">
-                                <label class="form-label">Price *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="number" class="form-control" value="0">
-                                </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Total Seat *</label>
-                                    <input type="number" class="form-control" value="0">
+                            <div id="ticketTypesContainer">
+                                <div class="row mb-3 ticket-group">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Title Type *</label>
+                                        <input type="text" class="form-control ticket_name" placeholder="Input Title Type">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Price *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" class="form-control price" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Total Seat *</label>
+                                        <input type="number" class="form-control total_seat" value="0">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btnRemoveTicket">X</button>
+                                    </div>
                                 </div>
                             </div>
+
 
                             <div class="text-center mb-3">
-                                <button type="button" class="btn btn-sm w-100" style="border: 1px solid #a78bfa; color: #a78bfa;">+ Add Different Ticket Type</button>
+                                <button type="button" id="addTicket" class="btn btn-sm w-100" style="border: 1px solid #a78bfa; color: #a78bfa;">+ Add Different Ticket Type</button>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description *</label>
-                                <textarea class="form-control" rows="4" placeholder="Input Description"></textarea>
+                                <textarea id="idDescription" class="form-control" rows="4" placeholder="Input Description"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Thumbnail Event *</label>
-                                <input type="file" class="form-control">
+                                <input id="idPictureEvent" type="file" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Upload Seat Mapping Image</label>
-                                 <input type="file" class="form-control">
+                                 <input id="idPictureSeat" type="file" class="form-control">
                             </div>
                         </form>
 
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary w-100 close-modal" style="background-color: #a78bfa;">Add Event</button>
+                        <button id="submitBtn" type="button" class="btn btn-primary w-100 close-modal" style="background-color: #a78bfa;">Add Event</button>
                     </div>
                     </div>
                 </div>
@@ -323,6 +329,83 @@
             });
         }
     });
+
+    $(document).ready(function () {
+        // Tambah baris tiket
+        $("#addTicket").on("click", function () {
+            $("#ticketTypesContainer").append(`
+                <div class="row mb-3 ticket-group">
+                    <div class="col-md-4">
+                        <label class="form-label">Title Type *</label>
+                        <input type="text" class="form-control ticket_name" placeholder="Input Title Type">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Price *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" class="form-control price" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Total Seat *</label>
+                        <input type="number" class="form-control total_seat" value="0">
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btnRemoveTicket">X</button>
+                    </div>
+                </div>
+            `);
+        });
+
+        // Hapus baris tiket
+        $(document).on("click", ".btnRemoveTicket", function () {
+            $(this).closest(".ticket-group").remove();
+        });
+
+        // Submit
+        $("#submitBtn").on("click", function (e) {
+            e.preventDefault();
+
+            let ticketNames = $(".ticket_name").map(function () {
+                return $(this).val();
+            }).get();
+
+            let prices = $(".price").map(function () {
+                return $(this).val();
+            }).get();
+
+            let totalSeats = $(".total_seat").map(function () {
+                return $(this).val();
+            }).get();
+
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('addEvent') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    title: $("#inputTitle").val(),
+                    subtitle: $("#inputShortDes").val(),
+                    start_date: $("#idStartDate").val(),
+                    location: $("#idLocation").val(),
+                    description: $("#idDescription").val(),
+                    picture_event: $("#idPictureEvent").val(),
+                    picture_seat: $("#idPictureSeat").val(),
+                    ticket_name: ticketNames,
+                    price: prices,
+                    total_seat: totalSeats
+                },
+                dataType: "json",
+                success: function (response) {
+                    alert(response.message);
+                },
+                error: function (xhr) {
+                    alert("Terjadi kesalahan: " + xhr.responseJSON.message);
+                }
+            });
+        });
+    });
+
 
 </script>
 @endsection
