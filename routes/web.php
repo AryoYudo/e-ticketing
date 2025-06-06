@@ -7,6 +7,7 @@ use App\Http\Controllers\DetailController;
 use App\Http\Controllers\BuyController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AddEventController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,5 +39,6 @@ Route::get('/buy', [BuyController::class, 'buy'])->name('buy');
 
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 Route::get('/listEvents', [DashboardController::class, 'listEvents'])->name('listEvents');
-Route::post('/addEvent', [DashboardController::class, 'addEvent'])->name('addEvent');
-Route::get('/dashboard', [DashboardController::class, 'showEventList'])->name('dashboard');
+
+Route::get('/showEventTabel', [AddEventController::class, 'showEventTabel'])->name('showEventTabel');
+Route::post('/addEvent', [AddEventController::class, 'addEvent'])->name('addEvent');
