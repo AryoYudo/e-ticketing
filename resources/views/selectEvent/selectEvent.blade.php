@@ -15,7 +15,7 @@
         <img src="{{ asset('images/logo.png') }}" alt="Tikom Logo" style="height: 50px;">
         <div class="border rounded-pill px-3 py-1 fw-semibold d-flex align-items-center shadow-sm">
             <i class="bi bi-calendar me-2"></i> {{-- Gunakan Bootstrap Icons --}}
-            Senin, 20 January 2024
+            <span id="tanggalLocal"></span>
         </div>
     </div>
 
@@ -53,7 +53,7 @@
                             </p>
                             <p class="fw-semibold mb-1">Start From</p>
                                 <p class="fw-bold fs-5">Rp {{ number_format($event->min_price, 0, ',', '.') }}</p>
-                            <a href="{{ route('detail') }}" class="btn w-100 text-black fw-bold" style="background-color: #B487F8; color: black; box-shadow: 4px 4px 0px #000;">Detail</a>
+                            <a href="{{ route('detail', ['id' => $event->id]) }}" class="btn w-100 text-black fw-bold" style="background-color: #B487F8; color: black; box-shadow: 4px 4px 0px #000;">Detail</a>
                         </div>
                     </div>
                 </div>
@@ -71,5 +71,27 @@
         <span class="bg-secondary rounded-circle opacity-25" style="width: 10px; height: 10px;"></span>
         <span class="bg-secondary rounded-circle opacity-25" style="width: 10px; height: 10px;"></span>
     </div> --}}
+
 </div>
+
+@endsection
+@section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        const now = new Date();
+        const namaHari = hari[now.getDay()];
+        const tanggal = now.getDate();
+        const namaBulan = bulan[now.getMonth()];
+        const tahun = now.getFullYear();
+
+        const tanggalLengkap = `${namaHari}, ${tanggal} ${namaBulan} ${tahun}`;
+        $('#tanggalLocal').text(tanggalLengkap);
+    });
+</script>
 @endsection

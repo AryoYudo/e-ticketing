@@ -33,7 +33,7 @@ Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login')
 // {evets admin}
 Route::get('/events', [EventController::class, 'events'])->name('events');
 
-Route::get('/detail', [DetailController::class, 'detail'])->name('detail');
+Route::get('/detail/{id}', [DetailController::class, 'detail'])->name('detail');
 
 Route::get('/buy', [BuyController::class, 'buy'])->name('buy');
 
