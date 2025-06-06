@@ -122,6 +122,98 @@ class AddEventController extends Controller
         }
     }
 
+    public function editEvent(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'string|max:255',
+            'subtitle' => 'nullable|string|max:255',
+            'start_date' => 'date',
+            'location' => 'string|max:255',
+            'description' => 'nullable|string',
+            'picture_event' => 'nullable|file|image|mimes:jpg,jpeg,png|max:2048',
+            'picture_seat' => 'nullable|file|image|mimes:jpg,jpeg,png|max:2048',
+            'edit_ticket_name' => 'array',
+            'edit_price' => 'array',
+            'edit_total_seat' => 'array',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            $event = DB::table('events')->where('id', $id)->first();
+
+            if (!$event) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'Event tidak ditemukan.',
+                ], 404);
+            }
+
+            $dataUpdate = [
+                'title' => $request->input('title'),
+                'subtitle' => $request->input('subtitle'),
+                'start_date' => $request->input('start_date'),
+                'location' => $request->input('location'),
+                'description' => $request->input('description'),
+            ];
+            // dd($dataUpdate);
+
+            if ($request->hasFile('picture_event')) {
+                $fileEvent = $request->file('picture_event');
+                $filenameEvent = time() . '_event.' . $fileEvent->getClientOriginalExtension();
+                $fileEvent->move(public_path('uploads/events'), $filenameEvent);
+                $dataUpdate['picture_event'] = $filenameEvent;
+            }
+
+            if ($request->hasFile('picture_seat')) {
+                $fileSeat = $request->file('picture_seat');
+                $filenameSeat = time() . '_seat.' . $fileSeat->getClientOriginalExtension();
+                $fileSeat->move(public_path('uploads/seats'), $filenameSeat);
+                $dataUpdate['picture_seat'] = $filenameSeat;
+            }
+
+            DB::table('events')->where('id', $id)->update($dataUpdate);
+            DB::table('ticket_types')->where('event_id', $id)->delete();
+
+            $ticketNames = $request->input('edit_ticket_name');
+            $prices = $request->input('edit_price');
+            $totalSeats = $request->input('edit_total_seat');
+
+            // dd($ticketNames, $prices, $totalSeats);
+
+            for ($i = 0; $i < count($ticketNames); $i++) {
+                if (empty($ticketNames[$i])) {
+                    continue;
+                }
+
+                DB::table('ticket_types')->insert([
+                    'event_id' => $id,
+                    'ticket_name' => $ticketNames[$i],
+                    'price' => $prices[$i] ?? 0,
+                    'total_seat' => $totalSeats[$i] ?? 0,
+                ]);
+            }
+
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Event dan tiket berhasil diperbarui.',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 500,
+                'message' => 'Gagal memperbarui event: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
     public function destroy($id)
     {
         DB::beginTransaction();

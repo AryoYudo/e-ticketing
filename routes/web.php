@@ -43,3 +43,4 @@ Route::get('/listEvents', [DashboardController::class, 'listEvents'])->name('lis
 Route::get('/showEventTabel', [AddEventController::class, 'showEventTabel'])->name('showEventTabel');
 Route::post('/addEvent', [AddEventController::class, 'addEvent'])->name('addEvent');
 Route::delete('/destroy/{id}', [AddEventController::class, 'destroy'])->name('destroy');
+Route::put('/editEvent/{id}', [AddEventController::class, 'editEvent'])->name('editEvent');

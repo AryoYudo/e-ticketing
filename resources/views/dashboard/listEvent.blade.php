@@ -238,7 +238,7 @@
                                     <div class="menu-container" style="position: relative;">
                                         <span class="menu-toggle" onclick="toggleMenu(this)" style="cursor: pointer;">&#8942;</span>
                                         <div class="menu-options" style="display: none; position: absolute; right: 0; background: white; border: 1px solid #ccc; box-shadow: 0px 2px 5px rgba(0,0,0,0.2); z-index: 100; border-radius: 5px; overflow: hidden;">
-                                            <div class="menu-item editData" style="padding: 6px 10px; cursor: pointer;">Edit</div>
+                                            <div class="menu-item editData" data-id="{{ $event->id }}"  style="padding: 6px 10px; cursor: pointer;">Edit</div>
                                             <div class="menu-item deleteData" data-id="{{ $event->id }}" style="padding: 6px 10px; cursor: pointer; color: red;">Delete</div>
                                         </div>
                                     </div>
@@ -285,7 +285,11 @@
 
         $('.editData').click(function () {
             const row = $(this).closest('tr');
-            console.log('Isi data-row:', row.data());
+            console.log('DATA ROW:', row.data());
+
+            const eventId = row.data('id');  // id event
+            $('#editEventModal').data('eventId', eventId);
+
             const title = row.data('title');
             const subtitle = row.data('subtitle');
             const location = row.data('location');
@@ -294,14 +298,14 @@
             const pictureEvent = row.data('pictureEvent');
             const pictureSeat = row.data('pictureSeats');
 
-            const ticketNames = row.data('ticketNames');
-            const prices = row.data('prices');
-            const totalSeats = String(row.data('total-seats')); // <-- paksa jadi string
-            const seatArray = totalSeats.split(',');
+            const ticketNames = row.data('ticketNames') || "";
+            const prices = row.data('prices') || "";
+            const totalSeatsRaw = row.data('totalSeats');
+            const totalSeats = (typeof totalSeatsRaw === 'string') ? totalSeatsRaw : (totalSeatsRaw != null ? totalSeatsRaw.toString() : "");
 
-            const ticketNameArr = ticketNames?.split(',') || [];
-            const priceArr = prices?.split(',') || [];
-            const totalSeatArr = totalSeats?.split(',') || [];
+            const ticketNameArr = ticketNames.split(',');
+            const priceArr = prices.split(',');
+            const totalSeatArr = totalSeats.split(',');
 
             // Isi modal
             $('#editinputTitle').val(title);
@@ -310,7 +314,7 @@
             $('#editidLocation').val(location);
             $('#idEditDescription').val(description);
             $('#previewEditPictureEvent').text('File lama: ' + pictureEvent);
-            $('#previewEditPictureSeat').text('File lama: ' + pictureEvent);
+            $('#previewEditPictureSeat').text('File lama: ' + pictureSeat);
 
             $('#editticketTypesContainer').html('');
             for (let i = 0; i < ticketNameArr.length; i++) {
@@ -334,51 +338,15 @@
                     </div>
                 `);
             }
-
-            // Tampilkan modal
             $('#editEventModal').removeClass('d-none').addClass('show');
             $('#backdrop').removeClass('d-none');
         });
-
 
         // Close modal
         $('.close-modal-edit').click(function () {
             $('#editEventModal').removeClass('show').addClass('d-none');
             $('#backdrop').addClass('d-none');
         });
-
-        // Remove ticket type input
-        $(document).on('click', '.btnRemoveTicketEdit', function () {
-            $(this).closest('.ticket-group').remove();
-        });
-
-        // Tambah ticket type baru
-        $('#editTicket').click(function () {
-            const ticketHtml = `
-                <div class="row mb-3 ticket-group">
-                    <div class="col-md-4">
-                        <label class="form-label">Title Type *</label>
-                        <input type="text" class="form-control edit_ticket_name" placeholder="Input Title Type">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Price *</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control edit_price" value="0">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Total Seat *</label>
-                        <input type="number" class="form-control edit_total_seat" value="0">
-                    </div>
-                    <div class="col-md-1 d-flex align-items-end">
-                        <button type="button" class="btn btn-danger btnRemoveTicketEdit">X</button>
-                    </div>
-                </div>
-            `;
-            $('#editticketTypesContainer').append(ticketHtml);
-        });
-
 
 
 
@@ -496,8 +464,13 @@
         $(document).on("click", ".btnRemoveTicketEdit", function () {
             $(this).closest(".edit-ticket-group").remove();
         });
+
         $("#submitBtnEdit").on("click", function (e) {
             e.preventDefault();
+
+            let id = $('#editEventModal').data('eventId');
+
+            console.log('ID EVENT:', id);
 
             let formData = new FormData();
             formData.append('_token', "{{ csrf_token() }}");
@@ -506,8 +479,12 @@
             formData.append('start_date', $("#editidStartDate").val());
             formData.append('location', $("#editidLocation").val());
             formData.append('description', $("#idEditDescription").val());
-            formData.append('picture_event', $('#idEditPictureEvent')[0].files[0]);
-            formData.append('picture_seat', $('#idEditPictureSeat')[0].files[0]);
+            if ($('#idEditPictureEvent')[0].files.length > 0) {
+                formData.append('picture_event', $('#idEditPictureEvent')[0].files[0]);
+            }
+            if ($('#idEditPictureSeat')[0].files.length > 0) {
+                formData.append('picture_seat', $('#idEditPictureSeat')[0].files[0]);
+            }
 
             $(".edit_ticket_name").each(function (i, el) {
                 formData.append(`edit_ticket_name[${i}]`, $(el).val());
@@ -519,24 +496,34 @@
                 formData.append(`edit_total_seat[${i}]`, $(el).val());
             });
 
+            for (let pair of formData.entries()) {
+                console.log(pair[0]+ ': ' + pair[1]);
+            }
+            formData.append('_method', 'PUT');  // spoofing method PUT di Laravel
+
+
+
             $.ajax({
-                type: "PUT",
-                url: "{{ route('addEvent') }}",
+                type: "POST",
+                url: '/editEvent/' + id,
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function (response) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Added!!',
+                        title: 'Updated!',
                         text: response.message,
                         showConfirmButton: false,
-                        timer: 1500  // popup akan hilang otomatis dalam 1.5 detik
+                        timer: 1500
                     });
                     if (response.status === 200) {
-                        $("#eventForm")[0].reset();
-                        $(".edit-ticket-group").not(":first").remove();
-                        $("#addEventModal").addClass("d-none").removeClass("show");
+                        // Reset form edit jika ada
+                        $("#editEventModal form")[0]?.reset();
+                        $("#editEventModal").addClass("d-none").removeClass("show");
                         $("#backdrop").addClass("d-none");
                         location.reload();
                     }
@@ -550,6 +537,7 @@
                 }
             });
         });
+
 
         $('#eventTable').on('click', '.menu-toggle', function (e) {
             e.stopPropagation(); // cegah bubble
