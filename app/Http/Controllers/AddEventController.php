@@ -15,28 +15,50 @@ class AddEventController extends Controller
         try {
             $search = $request->input('search');
 
-            $query = DB::table('events')
-                ->leftJoin('ticket_types', 'events.id', '=', 'ticket_types.event_id')
-                ->select(
-                    'events.id',
-                    'events.title',
-                    'events.location',
-                    'events.start_date',
-                    DB::raw('COUNT(ticket_types.id) as type'),
-                    DB::raw("CASE WHEN COUNT(ticket_types.id) = 0 THEN 'Sold' ELSE 'Available' END as status")
-                )
-                ->groupBy('events.id', 'events.title', 'events.location', 'events.start_date')
-                ->orderByDesc('events.created_at');
+            $bindings = [];
+            $searchSql = '';
 
             if ($search) {
-                $query->where(function($q) use ($search) {
-                    $q->where('events.id', 'like', "%{$search}%")
-                    ->orWhere('events.title', 'like', "%{$search}%")
-                    ->orWhere('events.location', 'like', "%{$search}%");
-                });
+                $searchSql = "WHERE events.id::text LIKE ? OR events.title ILIKE ? OR events.location ILIKE ?";
+                $bindings = ["%{$search}%", "%{$search}%", "%{$search}%"];
             }
 
-            $events = $query->get();
+            $sql = "
+                SELECT
+                    events.id,
+                    events.title,
+                    events.location,
+                    events.start_date,
+                    events.subtitle,
+                    events.description,
+                    events.picture_event,
+                    events.picture_seat,
+                    string_agg(ticket_types.ticket_name, ',') AS ticket_names,
+                    string_agg(ticket_types.price::text, ',') AS prices,
+                    string_agg(ticket_types.total_seat::text, ',') AS total_seats,
+                    COUNT(ticket_types.id) AS type_count,
+                    CASE
+                        WHEN COUNT(ticket_types.id) = 0 THEN 'Sold'
+                        ELSE 'Available'
+                    END AS status
+                FROM events
+                LEFT JOIN ticket_types ON events.id = ticket_types.event_id
+                $searchSql
+                GROUP BY
+                    events.id,
+                    events.title,
+                    events.location,
+                    events.start_date,
+                    events.subtitle,
+                    events.description,
+                    events.picture_event,
+                    events.picture_seat
+                ORDER BY events.created_at DESC
+            ";
+
+            $events = DB::select($sql, $bindings);
+
+            // dd($events); // Kalau mau debug
 
             return view('dashboard.listEvent', compact('events', 'search'));
         } catch (\Exception $e) {
@@ -99,5 +121,48 @@ class AddEventController extends Controller
             ]);
         }
     }
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $event = DB::table('events')->where('id', $id)->first();
+
+            if (!$event) {
+                return response()->json(['success' => false, 'message' => 'Event tidak ditemukan.']);
+            }
+
+            // // Hapus file gambar kalau ada
+            // if ($event->picture_event && Storage::exists($event->picture_event)) {
+            //     Storage::delete($event->picture_event);
+            // }
+
+            // if ($event->picture_seat && Storage::exists($event->picture_seat)) {
+            //     Storage::delete($event->picture_seat);
+            // }
+
+            // Hapus tiket
+            DB::table('ticket_types')->where('event_id', $event->id)->delete();
+
+            // Hapus event
+            DB::table('events')->where('id', $id)->delete();
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Event dan tiket terkait berhasil dihapus.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus event: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+
 
 }
