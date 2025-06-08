@@ -35,7 +35,7 @@
 
     {{-- Tombol Kembali --}}
     <div class="mb-3">
-        <a href="{{ route('events') }}" class="text-dark fw-bold"><i class="bi bi-chevron-left me-1"></i> Kembali</a>
+        <a href="{{ route('selectEvent') }}" class="text-dark fw-bold"><i class="bi bi-chevron-left me-1"></i> Kembali</a>
     </div>
     @if(isset($event))
         {{-- Gambar & Informasi Utama --}}
@@ -76,17 +76,20 @@
             <div class="tab-pane d-none" id="ticket" role="tabpanel">
                 <div class="d-flex flex-column gap-3">
                     @foreach($ticketTypes as $index => $ticket)
-                    {{-- Tiket 1 --}}
-                        <div class="d-flex justify-content-between align-items-center p-3 border rounded-3 shadow-sm">
+                    {{-- Tiket --}}
+                       <div class="ticket-option d-flex justify-content-between align-items-center p-3 border rounded-3 shadow-sm"
+                            style="cursor: pointer; transition: background-color 0.3s, border-color 0.3s;"
+                            onclick="selectTicket($(this))">
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-ticket-perforated fs-3 text-purple me-3"></i>
                                 <div>
-                                    <div class="fw-bold">Jenis Tiket {{ $index + 1}}</div>
-                                    <small class="text-muted">{{ $ticket->ticket_name}}</small>
+                                    <div class="fw-bold">Jenis Tiket {{ $index + 1 }}</div>
+                                    <div class="text-muted">{{ $ticket->ticket_name }}</div>
+                                    <div class="text-muted">Sisa Kursi: {{ $ticket->total_seat ?? 'N/A' }}</div>
                                 </div>
                             </div>
                             <div class="fw-bold fs-6 text-end">
-                                Rp  {{ number_format($ticket->price, 0, ',', '.') }}
+                                Rp {{ number_format($ticket->price, 0, ',', '.') }}
                             </div>
                         </div>
                     @endforeach
@@ -125,6 +128,10 @@
             $(this).addClass('active');
         });
     });
+    function selectTicket(element) {
+        $('.ticket-option').removeClass('border-primary').css('background-color', '');
+        element.addClass('border-primary').css('background-color', '#f1e7ff');
+    }
 </script>
 
 @endsection

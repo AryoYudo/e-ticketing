@@ -9,7 +9,6 @@
 
 </style>
 <div class="container py-4">
-
     {{-- Logo & Tanggal --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <img src="{{ asset('images/logo.png') }}" alt="Tikom Logo" style="height: 50px;">
@@ -23,15 +22,40 @@
     <h2 class="fw-bold">Sekarang kamu bebas menjelajahi<br>konser yang kamu ingin datangi.</h2>
     <p class="text-muted">Yuk pilih konser nya sekarang!</p>
 
-    {{-- Filter Bulan --}}
+    @php
+    use Carbon\Carbon;
+
+    $currentMonth = Carbon::now()->month;
+        $monthNames = [
+            1 => 'January', 2 => 'February', 3 => 'March',
+            4 => 'April', 5 => 'May', 6 => 'June',
+            7 => 'July', 8 => 'August', 9 => 'September',
+            10 => 'October', 11 => 'November', 12 => 'December',
+        ];
+    @endphp
+
     <div class="d-flex gap-2 flex-wrap my-4">
-        <button class="btn fw-bold text-white" style="background-color: #B487F8;color: black; box-shadow: 4px 4px 0px #000;">This Month</button>
-        <button class="btn fw-bold" style="background-color: #F887A1;color: black; box-shadow: 4px 4px 0px #000;">January</button>
-        <button class="btn fw-bold text-white" style="background-color: #DD8723;color: black; box-shadow: 4px 4px 0px #000;">February</button>
-        <button class="btn fw-bold text-white" style="background-color: #BFF887;color: black; box-shadow: 4px 4px 0px #000;">March</button>
-        <button class="btn fw-bold text-white" style="background-color: #87F8E3;color: black; box-shadow: 4px 4px 0px #000;">April</button>
-        {{-- Tambahkan bulan lainnya sesuai kebutuhan --}}
+        @for ($i = $currentMonth; $i <= 12; $i++)
+            <a href="{{ route('selectEvent') }}?month={{ $i }}">
+                <button class="btn fw-bold {{ request('month') == $i ? 'text-white' : '' }}"
+                    style="background-color: #{{ sprintf('%06X', mt_rand(0xAAAAAA, 0xFFFFFF)) }}; color: black; box-shadow: 4px 4px 0px #000;">
+                    {{ $monthNames[$i] }}
+                </button>
+            </a>
+        @endfor
+        @if($currentMonth > 1)
+            {{-- Tambahkan juga bulan sebelumnya jika bulan sekarang adalah Januari --}}
+            @for ($i = 1; $i < $currentMonth; $i++)
+                <a href="{{ route('selectEvent') }}?month={{ $i }}">
+                    <button class="btn fw-bold {{ request('month') == $i ? 'text-white' : '' }}"
+                        style="background-color: #{{ sprintf('%06X', mt_rand(0xAAAAAA, 0xFFFFFF)) }}; color: black; box-shadow: 4px 4px 0px #000;">
+                        {{ $monthNames[$i] }}
+                    </button>
+                </a>
+            @endfor
+        @endif
     </div>
+
 
     {{-- Kartu Event --}}
     <div class="row">
@@ -61,17 +85,7 @@
         @else
             <div>Tidak ada data events</div>
         @endif
-
-        {{-- Ulangi sampai habis --}}
     </div>
-
-    {{-- Carousel indicator versi dot (opsional) --}}
-    {{-- <div class="d-flex justify-content-center mt-3 gap-2">
-        <span class="bg-secondary rounded-circle" style="width: 10px; height: 10px;"></span>
-        <span class="bg-secondary rounded-circle opacity-25" style="width: 10px; height: 10px;"></span>
-        <span class="bg-secondary rounded-circle opacity-25" style="width: 10px; height: 10px;"></span>
-    </div> --}}
-
 </div>
 
 @endsection

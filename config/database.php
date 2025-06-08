@@ -75,8 +75,12 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'require'), // gunakan SSL dari .env
+            'options' => extension_loaded('pdo_pgsql') && defined('PDO::PGSQL_ATTR_SSL_MODE') ? array_filter([
+                PDO::PGSQL_ATTR_SSL_MODE => env('DB_SSLMODE', 'require'),
+            ]) : [],
         ],
+
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
