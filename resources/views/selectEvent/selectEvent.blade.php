@@ -36,7 +36,7 @@
 
     <div class="d-flex gap-2 flex-wrap my-4">
         @for ($i = $currentMonth; $i <= 12; $i++)
-            <a href="{{ route('selectEvent') }}?month={{ $i }}">
+            <a href="{{ route('events') }}?month={{ $i }}">
                 <button class="btn fw-bold {{ request('month') == $i ? 'text-white' : '' }}"
                     style="background-color: #{{ sprintf('%06X', mt_rand(0xAAAAAA, 0xFFFFFF)) }}; color: black; box-shadow: 4px 4px 0px #000;">
                     {{ $monthNames[$i] }}
@@ -46,7 +46,7 @@
         @if($currentMonth > 1)
             {{-- Tambahkan juga bulan sebelumnya jika bulan sekarang adalah Januari --}}
             @for ($i = 1; $i < $currentMonth; $i++)
-                <a href="{{ route('selectEvent') }}?month={{ $i }}">
+                <a href="{{ route('events') }}?month={{ $i }}">
                     <button class="btn fw-bold {{ request('month') == $i ? 'text-white' : '' }}"
                         style="background-color: #{{ sprintf('%06X', mt_rand(0xAAAAAA, 0xFFFFFF)) }}; color: black; box-shadow: 4px 4px 0px #000;">
                         {{ $monthNames[$i] }}

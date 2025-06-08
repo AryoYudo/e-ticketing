@@ -18,7 +18,33 @@
         <h3 class="fw-bold">Data Diri</h3>
         <p class="text-muted">Isi data di bawah ini dengan benar ya!</p>
 
-        <form id="payment-form">
+        <form id="paymentForm">
+            @if($eventName)
+                <input type="hidden" id="eventName" value="{{ $eventName }}">
+            @endif
+            @csrf
+            <div class="mb-3">
+                <label for="Text" class="fw-bold">Tiket</label>
+                <h4 for="Text" class="fw-bold"></h4>
+                @if (isset($ticketTypes))
+                    <div class="ticket-option d-flex justify-content-between border-primary align-items-center p-3 border rounded-3 shadow-sm"
+                    style="cursor: pointer; transition: background-color 0.3s, border-color 0.3s; background-color: #f1e7ff;">
+
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-ticket-perforated fs-3 text-purple me-3"></i>
+                        <div>
+                            <div class="fw-bold">Jenis Tiket</div>
+                            <div class="text-muted">{{ $ticketTypes->ticket_name }}</div>
+                        </div>
+                    </div>
+                    <div class="fw-bold fs-6 text-end">
+                        Rp {{ number_format($ticketTypes->price, 0, ',', '.') }}
+                    </div>
+                </div>
+                @endif
+                {{-- <input type="Text" class="form-control" id="tiket" required> --}}
+            </div>
+
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" placeholder="satria2323@gmail.com" required>
@@ -65,7 +91,7 @@
             <p class="mb-1 fw-semibold">Detail Tiket</p>
             <div class="row mb-2">
                 <div class="col-5 text-muted">Nama Event</div>
-                <div class="col-7 fw-semibold">Acara Konser Batam</div>
+                <div class="col-7 fw-semibold" id="nameEvent"></div>
             </div>
             <div class="row mb-1">
                 <div class="col-5 text-muted">Atas nama</div>
@@ -99,39 +125,59 @@
 
 {{-- jQuery --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-h7gntHE9ugrQ_VVt"></script>
 <script>
-    $('#payment-form').on('submit', function (e) {
+    $('#paymentForm').on('submit', function (e) {
         e.preventDefault();
 
-        // Ambil data
-        var email = $('#email').val();
-        var name = $('#name').val();
-        var nik = $('#nik').val();
-        var birthdate = $('#birthdate').val();
+        let data = {
+            _token: $('input[name="_token"]').val(),
+            buyer_name: $('#name').val(),
+            buyer_email: $('#email').val(),
+            nik: $('#nik').val(),
+            birth_date: $('#birthdate').val(),
+            birth_date: $('#birthdate').val(),
+            eventName: $('#eventName').val(),
+        };
 
-        // Format tanggal
-        var birthFormatted = new Date(birthdate).toLocaleDateString('id-ID', {
-            day: '2-digit', month: 'long', year: 'numeric'
+        $.ajax({
+            url: '/order_request/{{ $ticketTypes->id }}',
+            method: 'POST',
+            data: data,
+            success: function (response) {
+                if (response.status === 200) {
+                    snap.pay(response.token, {
+                        onSuccess: function (result) {
+                            console.log("Pembayaran sukses", result);
+                            $('#form-section').hide();
+                            $('#success-section').removeClass('d-none');
+
+                            $('#emailDisplay, #emailDisplayDetail').text(data.buyer_email);
+                            $('#nameDisplay').text(data.buyer_name);
+                            $('#nameEvent').text(data.eventName);
+                            $('#birthdateDisplay').text(data.birth_date);
+                            $('#nikDisplay').text(data.nik);
+                        },
+                        onPending: function (result) {
+                            console.log("Menunggu pembayaran", result);
+                        },
+                        onError: function (result) {
+                            console.error("Pembayaran gagal", result);
+                        },
+                        onClose: function () {
+                            alert('Pembayaran belum selesai');
+                        }
+                    });
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function (xhr) {
+                alert("Terjadi kesalahan");
+                console.log(xhr.responseText);
+            }
         });
-
-        // Set data di halaman sukses
-        $('#emailDisplay').text(email);
-        $('#emailDisplayDetail').text(email);
-        $('#nameDisplay').text(name);
-        $('#nikDisplay').text(nik.slice(0, 6) + 'xxxxxxx');
-        $('#birthdateDisplay').text(birthFormatted);
-
-        // Tampilkan success, sembunyikan form
-        $('#form-section').addClass('d-none');
-        $('#success-section').removeClass('d-none');
-
-        // Mulai countdown
-        var seconds = 30;
-        var countdown = setInterval(function () {
-            seconds--;
-            $('#countdown').text('00:' + seconds.toString().padStart(2, '0'));
-            if (seconds <= 0) clearInterval(countdown);
-        }, 1000);
     });
 </script>
+
 @endsection

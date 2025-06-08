@@ -35,7 +35,7 @@
 
     {{-- Tombol Kembali --}}
     <div class="mb-3">
-        <a href="{{ route('selectEvent') }}" class="text-dark fw-bold"><i class="bi bi-chevron-left me-1"></i> Kembali</a>
+        <a href="{{ route('events') }}" class="text-dark fw-bold"><i class="bi bi-chevron-left me-1"></i> Kembali</a>
     </div>
     @if(isset($event))
         {{-- Gambar & Informasi Utama --}}
@@ -77,7 +77,7 @@
                 <div class="d-flex flex-column gap-3">
                     @foreach($ticketTypes as $index => $ticket)
                     {{-- Tiket --}}
-                       <div class="ticket-option d-flex justify-content-between align-items-center p-3 border rounded-3 shadow-sm"
+                       <div class="ticket-option d-flex justify-content-between align-items-center p-3 border rounded-3 shadow-sm" data-ticket-id="{{ $ticket->id }}"
                             style="cursor: pointer; transition: background-color 0.3s, border-color 0.3s;"
                             onclick="selectTicket($(this))">
                             <div class="d-flex align-items-center">
@@ -105,10 +105,14 @@
 
     {{-- Tombol Beli --}}
     <div class="mt-4">
-        <a href="{{ route('buy') }}" class="btn w-100 fw-bold text-black" style="background-color: #B487F8; color: black; box-shadow: 4px 4px 0px #000;">
+        <a id="buyButton" href="#"
+        class="btn w-100 fw-bold text-black"
+        style="background-color: #B487F8; color: black; box-shadow: 4px 4px 0px #000; pointer-events: none; opacity: 0.6;"
+        disabled>
             <i class="bi bi-ticket-perforated me-2"></i> Beli Tiket
         </a>
     </div>
+
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -116,21 +120,29 @@
     $(function() {
         $('#eventTab button').on('click', function () {
             const target = $(this).data('bs-target');
-
             // Sembunyikan semua tab-pane
             $('.tab-pane').addClass('d-none').removeClass('show active');
-
             // Tampilkan tab yang diklik
             $(target).removeClass('d-none').addClass('show active');
-
             // Update tab-button aktif
             $('#eventTab button').removeClass('active');
             $(this).addClass('active');
         });
     });
+
     function selectTicket(element) {
+        // Hapus highlight dari tiket lain
         $('.ticket-option').removeClass('border-primary').css('background-color', '');
+        // Tambahkan highlight ke tiket yang dipilih
         element.addClass('border-primary').css('background-color', '#f1e7ff');
+        console.log('Tiket dipilih:', element.data('ticket-id'));
+        let ticketId = element.data('ticket-id');
+
+        let url = "{{ route('buy', ['id' => ':id']) }}".replace(':id', ticketId);
+        $('#buyButton')
+            .attr('href', url)
+            .removeAttr('disabled')
+            .css({ 'pointer-events': 'auto', 'opacity': '1' });
     }
 </script>
 

@@ -34,7 +34,7 @@ class DashboardController extends Controller
                     'events.start_date',
                     'ticket_types.ticket_name as ticket_type'
                 )
-                ->orderBy('orders.transaction_time', 'desc')
+                ->orderBy('orders.order_date', 'desc')
                 ->limit(10)
                 ->get();
 
