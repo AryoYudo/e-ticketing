@@ -35,6 +35,9 @@ Route::get('/detail/{id}', [DetailController::class, 'detail'])->name('detail');
 Route::get('/buy/{id}', [BuyController::class, 'buy'])->name('buy');
 Route::post('/order_request/{ticket_id}', [BuyController::class, 'orderRequest'])->name('orderRequest');
 
+// {NOTIFICATION}
+Route::post('/midtrans/notification', [MidtransController::class, 'handleNotification']);
+
 // {evets admin}
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 Route::get('/listEvents', [DashboardController::class, 'listEvents'])->name('listEvents');

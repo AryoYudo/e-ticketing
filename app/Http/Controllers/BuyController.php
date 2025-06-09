@@ -9,6 +9,10 @@ use Illuminate\Support\Str; // Untuk generate order_id unik
 use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Snap;
+use App\Mail\TicketMail;
+use Illuminate\Support\Facades\Mail;
+use PDF;
+
 
 
 class BuyController extends Controller
@@ -76,6 +80,16 @@ class BuyController extends Controller
             ];
 
             $snapToken = \Midtrans\Snap::getSnapToken($params);
+            $details = [
+                'order_id' => $order_id,
+                'buyer_name' => $request->buyer_name,
+                'buyer_email' => $request->buyer_email,
+                'nik' => $request->nik,
+                'birth_date' => $request->birth_date,
+                'total_payment' => $ticket->price,
+            ];
+
+            Mail::to($request->buyer_email)->send(new TicketMail($details));
 
             return response()->json([
                 'status' => 200,
