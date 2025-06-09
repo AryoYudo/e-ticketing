@@ -80,7 +80,6 @@ class AddEventController extends Controller
             'price' => 'required|array',
             'total_seat' => 'required|array',
         ]);
-
         try {
             // Tambahkan event baru
             $eventId = DB::table('events')->insertGetId([
@@ -136,7 +135,6 @@ class AddEventController extends Controller
             'edit_price' => 'array',
             'edit_total_seat' => 'array',
         ]);
-
         DB::beginTransaction();
 
         try {
@@ -181,8 +179,6 @@ class AddEventController extends Controller
             $prices = $request->input('edit_price');
             $totalSeats = $request->input('edit_total_seat');
 
-            // dd($ticketNames, $prices, $totalSeats);
-
             for ($i = 0; $i < count($ticketNames); $i++) {
                 if (empty($ticketNames[$i])) {
                     continue;
@@ -213,7 +209,6 @@ class AddEventController extends Controller
         }
     }
 
-
     public function destroy($id)
     {
         DB::beginTransaction();
@@ -224,7 +219,6 @@ class AddEventController extends Controller
             if (!$event) {
                 return response()->json(['success' => false, 'message' => 'Event tidak ditemukan.']);
             }
-
             // // Hapus file gambar kalau ada
             // if ($event->picture_event && Storage::exists($event->picture_event)) {
             //     Storage::delete($event->picture_event);
@@ -233,7 +227,6 @@ class AddEventController extends Controller
             // if ($event->picture_seat && Storage::exists($event->picture_seat)) {
             //     Storage::delete($event->picture_seat);
             // }
-
             // Hapus tiket
             DB::table('ticket_types')->where('event_id', $event->id)->delete();
 
