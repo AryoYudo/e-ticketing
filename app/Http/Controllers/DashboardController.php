@@ -29,7 +29,6 @@ class DashboardController extends Controller
                     'orders.id as order_id',
                     'orders.buyer_name',
                     'orders.total_payment',
-                    'orders.transaction_time',
                     'events.title as event_title',
                     'events.start_date',
                     'ticket_types.ticket_name as ticket_type'

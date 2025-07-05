@@ -186,7 +186,7 @@
                                     </form>
                                 </div>
                                 <div class="modal-footer">
-                                    <button id="submitBtnEdit" type="button" class="btn btn-primary w-100 close-modal-edit" style="background-color: #a78bfa;">Add Event</button>
+                                    <button id="submitBtnEdit" type="button" class="btn btn-primary w-100 close-modal-edit" style="background-color: #a78bfa;">Edit Event</button>
                                 </div>
                             </div>
                         </div>
@@ -285,7 +285,6 @@
 
         $('.editData').click(function () {
             const row = $(this).closest('tr');
-            console.log('DATA ROW:', row.data());
 
             const eventId = row.data('id');  // id event
             $('#editEventModal').data('eventId', eventId);
@@ -378,6 +377,7 @@
         $(document).on("click", ".btnRemoveTicket", function () {
             $(this).closest(".ticket-group").remove();
         });
+
         $("#submitBtn").on("click", function (e) {
             e.preventDefault();
 
@@ -432,10 +432,6 @@
                 }
             });
         });
-
-
-
-
 
         $("#editTicket").on("click", function () {
             $("#editticketTypesContainer").append(`
@@ -501,41 +497,52 @@
             }
             formData.append('_method', 'PUT');  // spoofing method PUT di Laravel
 
-
-
-            $.ajax({
-                type: "POST",
-                url: '/editEvent/' + id,
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Updated!',
-                        text: response.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    if (response.status === 200) {
-                        // Reset form edit jika ada
-                        $("#editEventModal form")[0]?.reset();
-                        $("#editEventModal").addClass("d-none").removeClass("show");
-                        $("#backdrop").addClass("d-none");
-                        location.reload();
-                    }
-                },
-                error: function (xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: xhr.responseJSON?.message || "Terjadi kesalahan."
+            Swal.fire({
+                title: 'Apakah kamu yakin?',
+                text: "Perubahan akan disimpan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#a78bfa',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, simpan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/editEvent/' + id,
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Updated!',
+                                text: response.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            if (response.status === 200) {
+                                $("#editEventModal form")[0]?.reset();
+                                $("#editEventModal").addClass("d-none").removeClass("show");
+                                $("#backdrop").addClass("d-none");
+                                location.reload();
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: xhr.responseJSON?.message || "Terjadi kesalahan."
+                            });
+                        }
                     });
                 }
             });
+
         });
 
 
