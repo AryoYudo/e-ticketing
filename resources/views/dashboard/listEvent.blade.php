@@ -15,6 +15,56 @@
             height: 100vh;
             background-color: rgba(0,0,0,0.5);
         }
+        .swal2-popup .swal-cancel-custom {
+            border: 1px solid #ccc;
+            background-color: transparent !important;
+            color: #333 !important;
+            box-shadow: none !important;
+            transition: 0.3s;
+        }
+
+        .swal2-popup .swal-cancel-custom:hover {
+            background-color: #f5f5f5 !important;
+            border-color: #bbb;
+        }
+
+
+        .dataTables_wrapper .dataTables_paginate .page-item .page-link {
+            color: #a78bfa !important;
+            background-color: transparent !important;
+            border: none !important;
+            font-weight: 500;
+            margin: 0 2px;
+            border-radius: 8px;
+        }
+
+        /* Hover */
+        .dataTables_wrapper .dataTables_paginate .page-item .page-link:hover {
+            background-color: rgba(167, 139, 250, 0.1) !important;
+            color: #7c3aed !important;
+        }
+
+        /* Active page */
+        .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+            color: #a78bfa !important;
+            background-color: transparent !important;
+            text-decoration: underline;
+            font-weight: bold;
+            box-shadow: none !important;
+        }
+
+        /* Disable focus outline */
+        .dataTables_wrapper .dataTables_paginate .page-link:focus {
+            box-shadow: none !important;
+        }
+
+        /* Previous / Next arrows */
+        .dataTables_wrapper .dataTables_paginate .page-item.previous .page-link,
+        .dataTables_wrapper .dataTables_paginate .page-item.next .page-link {
+            color: #a78bfa !important;
+        }
+
+
     </style>
 </head>
 <div class="container-fluid py-4">
@@ -196,7 +246,7 @@
 
             <div id="backdrop" class="modal-backdrop fade show d-none"></div>
 
-            <table id="eventTable" class="table">
+            <table id="eventTable" class="table dataTables_paginate ">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -503,9 +553,13 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#a78bfa',
-                cancelButtonColor: '#d33',
+                cancelButtonColor: 'transparent',
+                cancelButtonText: 'Batal',
                 confirmButtonText: 'Ya, simpan!',
-                cancelButtonText: 'Batal'
+                reverseButtons: true, // ⬅️ Ini yang memindahkan Cancel ke kiri
+                customClass: {
+                    cancelButton: 'swal-cancel-custom'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
