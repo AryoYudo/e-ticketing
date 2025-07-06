@@ -40,6 +40,11 @@ Route::post('/midtrans/notification', [MidtransController::class, 'handleNotific
 Route::get('/auth', [AuthController::class, 'auth'])->name('auth');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 
+Route::get('/logout', function (Illuminate\Http\Request $request) {
+    $request->session()->forget('loggedInUser');
+    return redirect('/auth')->with('success', 'Berhasil logout.');
+})->name('auth.logout');
+
 // Group route yang butuh login
 Route::middleware(['admin.auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');

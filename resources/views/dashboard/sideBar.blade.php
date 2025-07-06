@@ -32,10 +32,30 @@
         <div class="mt-auto w-100 mb-4">
             <div class="d-flex align-items-center justify-content-center mb-1">
                 <i class="bi bi-person-circle fs-3 me-2"></i>
-                <div class="fw-semibold">Admin 1</div>
+                <div class="fw-semibold">Admin</div>
             </div>
 
-            <a href="#" class="btn w-100 text-white fw-bold" style="background-color: #B487F8;">Log Out</a>
+            <a href="{{ route('auth.logout') }}" class="btn w-100 text-white fw-bold" style="background-color: #B487F8;">
+                Log Out
+            </a>
         </div>
     </div>
 </div>
+<!-- jQuery & SweetAlert2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Logout Berhasil',
+                text: @json(session('success')),
+                confirmButtonColor: '#6f42c1'
+            });
+        @endif
+    });
+</script>
+
+

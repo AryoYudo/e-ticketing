@@ -71,6 +71,7 @@ class AddEventController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'subtitle' => 'nullable|string|max:255',
             'start_date' => 'required|date',
             'location' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -80,25 +81,40 @@ class AddEventController extends Controller
             'price' => 'required|array',
             'total_seat' => 'required|array',
         ]);
+
         try {
-            // Tambahkan event baru
+            // Upload file gambar
+            $pictureEventPath = null;
+            $pictureSeatPath = null;
+
+            if ($request->hasFile('picture_event')) {
+                $pictureEventPath = $request->file('picture_event')->store('event_images', 'public');
+            }
+
+            if ($request->hasFile('picture_seat')) {
+                $pictureSeatPath = $request->file('picture_seat')->store('seat_images', 'public');
+            }
+
+            // Tambahkan event
             $eventId = DB::table('events')->insertGetId([
                 'title' => $request->input('title'),
                 'subtitle' => $request->input('subtitle'),
                 'start_date' => $request->input('start_date'),
                 'location' => $request->input('location'),
                 'description' => $request->input('description'),
-                'picture_event' => $request->input('picture_event'),
-                'picture_seat' => $request->input('picture_seat'),
+                'picture_event' => $pictureEventPath,
+                'picture_seat' => $pictureSeatPath,
                 'created_at' => now(),
             ]);
 
-            // Loop insert semua tipe tiket
+            // Insert tiket
             $ticketNames = $request->input('ticket_name');
             $prices = $request->input('price');
             $totalSeats = $request->input('total_seat');
 
-            for ($i = 0; $i < count($ticketNames); $i++) {
+            $ticketCount = min(count($ticketNames), count($prices), count($totalSeats));
+
+            for ($i = 0; $i < $ticketCount; $i++) {
                 DB::table('ticket_types')->insert([
                     'event_id' => $eventId,
                     'ticket_name' => $ticketNames[$i],
@@ -112,8 +128,9 @@ class AddEventController extends Controller
                 'status' => 200,
                 'message' => 'Event dan tiket berhasil ditambahkan.',
             ]);
-
+            
         } catch (\Exception $e) {
+            Log::error('Add Event Failed: ' . $e->getMessage());
             return response()->json([
                 'status' => 500,
                 'message' => 'Gagal menambahkan event: ' . $e->getMessage(),

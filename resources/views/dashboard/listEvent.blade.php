@@ -431,6 +431,17 @@
 
         $("#submitBtn").on("click", function (e) {
             e.preventDefault();
+            const pictureEvent = $('#idPictureEvent')[0].files[0];
+            const pictureSeat = $('#idPictureSeat')[0].files[0];
+
+            if (!pictureEvent || !pictureSeat) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Gagal',
+                    text: 'Mohon unggah gambar event dan seat terlebih dahulu.'
+                });
+                return;
+            }
 
             let formData = new FormData();
             formData.append('_token', "{{ csrf_token() }}");
@@ -439,8 +450,8 @@
             formData.append('start_date', $("#idStartDate").val());
             formData.append('location', $("#idLocation").val());
             formData.append('description', $("#idDescription").val());
-            formData.append('picture_event', $('#idPictureEvent')[0].files[0]);
-            formData.append('picture_seat', $('#idPictureSeat')[0].files[0]);
+            formData.append('picture_event', pictureEvent);
+            formData.append('picture_seat', pictureSeat);
 
             $(".ticket_name").each(function (i, el) {
                 formData.append(`ticket_name[${i}]`, $(el).val());
@@ -452,33 +463,47 @@
                 formData.append(`total_seat[${i}]`, $(el).val());
             });
 
-            $.ajax({
-                type: "POST",
-                url: "{{ route('addEvent') }}",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Added!!',
-                        text: response.message,
-                        showConfirmButton: false,
-                        timer: 1500  // popup akan hilang otomatis dalam 1.5 detik
-                    });
-                    if (response.status === 200) {
-                        $("#eventForm")[0].reset();
-                        $(".ticket-group").not(":first").remove();
-                        $("#addEventModal").addClass("d-none").removeClass("show");
-                        $("#backdrop").addClass("d-none");
-                        location.reload();
-                    }
-                },
-                error: function (xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: xhr.responseJSON?.message || "Terjadi kesalahan."
+            Swal.fire({
+                title: 'Konfirmasi Penambahan Data',
+                text: "Apakah kamu yakin ingin menambahkan data ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Ya, tambahkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('addEvent') }}",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: response.message || 'Data berhasil ditambahkan.',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+
+                            if (response.status === 200) {
+                                $("#eventForm")[0].reset();
+                                $(".ticket-group").not(":first").remove();
+                                $("#addEventModal").addClass("d-none").removeClass("show");
+                                $("#backdrop").addClass("d-none");
+                                location.reload();
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: xhr.responseJSON?.message || "Terjadi kesalahan saat menambahkan data."
+                            });
+                        }
                     });
                 }
             });

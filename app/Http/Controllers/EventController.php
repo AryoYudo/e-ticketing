@@ -26,6 +26,7 @@ class EventController extends Controller
                 ->groupBy('events.id', 'events.title', 'events.location', 'events.start_date')
                 ->get();
 
+
             return view('selectEvent.selectEvent', [
                 'events' => $events,
                 'selectedMonth' => $month

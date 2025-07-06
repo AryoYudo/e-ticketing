@@ -40,7 +40,7 @@
     @if(isset($event))
         {{-- Gambar & Informasi Utama --}}
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
-            <img src="{{ asset('images/background.png') }}" class="card-img-top" style="border-radius: 20px;">
+            <img src="{{ asset('storage/' . $event->picture_event) }}" class="card-img-top" style="border-radius: 20px;">
         </div>
 
         {{-- Judul --}}
