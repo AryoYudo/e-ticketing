@@ -37,7 +37,7 @@ class AddEventController extends Controller
                     string_agg(ticket_types.total_seat::text, ',') AS total_seats,
                     COUNT(ticket_types.id) AS type_count,
                     CASE
-                        WHEN COUNT(ticket_types.id) = 0 THEN 'Sold'
+                        WHEN SUM(ticket_types.total_seat) <= 0 THEN 'Sold'
                         ELSE 'Available'
                     END AS status
                 FROM events
@@ -159,10 +159,10 @@ class AddEventController extends Controller
             'edit_price' => 'array',
             'edit_total_seat' => 'array',
         ]);
+
         DB::beginTransaction();
 
         try {
-
             $event = DB::table('events')->where('id', $id)->first();
 
             if (!$event) {
@@ -180,7 +180,6 @@ class AddEventController extends Controller
                 'location' => $request->input('location'),
                 'description' => $request->input('description'),
             ];
-            // dd($dataUpdate);
 
             if ($request->hasFile('picture_event')) {
                 $fileEvent = $request->file('picture_event');
@@ -197,7 +196,17 @@ class AddEventController extends Controller
             }
 
             DB::table('events')->where('id', $id)->update($dataUpdate);
-            DB::table('ticket_types')->where('event_id', $id)->delete();
+
+            // Ambil semua ticket lama
+            $oldTickets = DB::table('ticket_types')->where('event_id', $id)->get();
+
+            foreach ($oldTickets as $ticket) {
+                $hasOrder = DB::table('orders')->where('ticket_type_id', $ticket->id)->exists();
+
+                if (!$hasOrder) {
+                    DB::table('ticket_types')->where('id', $ticket->id)->delete();
+                }
+            }
 
             $ticketNames = $request->input('edit_ticket_name');
             $prices = $request->input('edit_price');
@@ -208,14 +217,30 @@ class AddEventController extends Controller
                     continue;
                 }
 
-                DB::table('ticket_types')->insert([
-                    'event_id' => $id,
-                    'ticket_name' => $ticketNames[$i],
-                    'price' => $prices[$i] ?? 0,
-                    'total_seat' => $totalSeats[$i] ?? 0,
-                ]);
-            }
+                $existing = DB::table('ticket_types')
+                    ->where('event_id', $id)
+                    ->where('ticket_name', $ticketNames[$i])
+                    ->first();
 
+                if ($existing) {
+                    $hasOrder = DB::table('orders')->where('ticket_type_id', $existing->id)->exists();
+
+                    if (!$hasOrder) {
+                        DB::table('ticket_types')->where('id', $existing->id)->update([
+                            'price' => $prices[$i] ?? 0,
+                            'total_seat' => $totalSeats[$i] ?? 0,
+                        ]);
+                    }
+                    // Jika sudah dipakai, tidak diubah (biar aman)
+                } else {
+                    DB::table('ticket_types')->insert([
+                        'event_id' => $id,
+                        'ticket_name' => $ticketNames[$i],
+                        'price' => $prices[$i] ?? 0,
+                        'total_seat' => $totalSeats[$i] ?? 0,
+                    ]);
+                }
+            }
 
             DB::commit();
 
@@ -233,6 +258,8 @@ class AddEventController extends Controller
         }
     }
 
+
+
     public function destroy($id)
     {
         DB::beginTransaction();
@@ -243,24 +270,19 @@ class AddEventController extends Controller
             if (!$event) {
                 return response()->json(['success' => false, 'message' => 'Event tidak ditemukan.']);
             }
-            // // Hapus file gambar kalau ada
-            // if ($event->picture_event && Storage::exists($event->picture_event)) {
-            //     Storage::delete($event->picture_event);
-            // }
 
-            // if ($event->picture_seat && Storage::exists($event->picture_seat)) {
-            //     Storage::delete($event->picture_seat);
-            // }
-            // Hapus tiket
+            // Hapus orders dulu agar tidak melanggar FK ke ticket_types
+            DB::table('orders')->where('event_id', $id)->delete();
+
+            // Lalu hapus ticket_types
             DB::table('ticket_types')->where('event_id', $event->id)->delete();
 
-            // Hapus event
+            // Terakhir hapus event
             DB::table('events')->where('id', $id)->delete();
 
             DB::commit();
 
             return response()->json(['success' => true, 'message' => 'Event dan tiket terkait berhasil dihapus.']);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -270,6 +292,7 @@ class AddEventController extends Controller
             ]);
         }
     }
+
 
 
 

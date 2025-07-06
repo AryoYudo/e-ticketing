@@ -136,8 +136,7 @@
             buyer_email: $('#email').val(),
             nik: $('#nik').val(),
             birth_date: $('#birthdate').val(),
-            birth_date: $('#birthdate').val(),
-            eventName: $('#eventName').val(),
+            eventName: $('#eventName').val()
         };
 
         $.ajax({
@@ -149,9 +148,50 @@
                     snap.pay(response.token, {
                         onSuccess: function (result) {
                             console.log("Pembayaran sukses", result);
+
+                            $.ajax({
+                                url: '/send_ticket_email',
+                                method: 'POST',
+                                data: {
+                                    _token: $('input[name="_token"]').val(),
+                                    order_id: response.order_id, // <-- pastikan controller return order_id
+                                    buyer_name: data.buyer_name,
+                                    buyer_email: data.buyer_email,
+                                    nik: data.nik,
+                                    birth_date: data.birth_date,
+                                    total_payment: {{ $ticketTypes->price }}
+                                },
+                                success: function (res) {
+                                    console.log("Email terkirim:", res);
+                                },
+                                error: function () {
+                                    console.error("Gagal kirim email");
+                                }
+                            });
+
+                            let duration = 30; // dalam detik
+                            const $countdown = $('#countdown');
+                            const redirectUrl = "/";
+
+                            const interval = setInterval(function () {
+                                let minutes = Math.floor(duration / 60);
+                                let seconds = duration % 60;
+
+                                $countdown.text(
+                                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+                                );
+
+                                if (duration <= 0) {
+                                    clearInterval(interval);
+                                    window.location.href = redirectUrl;
+                                }
+
+                                duration--;
+                            }, 1000);
+
+                            // Tampilkan info berhasil ke UI
                             $('#form-section').hide();
                             $('#success-section').removeClass('d-none');
-
                             $('#emailDisplay, #emailDisplayDetail').text(data.buyer_email);
                             $('#nameDisplay').text(data.buyer_name);
                             $('#nameEvent').text(data.eventName);
@@ -165,16 +205,16 @@
                             console.error("Pembayaran gagal", result);
                         },
                         onClose: function () {
-                            alert('Pembayaran belum selesai');
+                            alert('Pembayaran dibatalkan.');
                         }
                     });
                 } else {
-                    alert(response.message);
+                    alert(response.message || 'Gagal melakukan transaksi.');
                 }
             },
             error: function (xhr) {
-                alert("Terjadi kesalahan");
-                console.log(xhr.responseText);
+                console.error("Error:", xhr.responseText);
+                alert("Terjadi kesalahan pada sistem.");
             }
         });
     });

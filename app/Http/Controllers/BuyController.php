@@ -89,11 +89,11 @@ class BuyController extends Controller
                 'total_payment' => $ticket->price,
             ];
 
-            Mail::to($request->buyer_email)->send(new TicketMail($details));
 
             return response()->json([
                 'status' => 200,
                 'token' => $snapToken,
+                'order_id' => $order_id,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -102,4 +102,21 @@ class BuyController extends Controller
             ]);
         }
     }
+
+    public function sendTicketEmail(Request $request)
+    {
+        $details = [
+            'order_id' => $request->order_id,
+            'buyer_name' => $request->buyer_name,
+            'buyer_email' => $request->buyer_email,
+            'nik' => $request->nik,
+            'birth_date' => $request->birth_date,
+            'total_payment' => $request->total_payment,
+        ];
+
+        Mail::to($request->buyer_email)->send(new TicketMail($details));
+
+        return response()->json(['status' => 200, 'message' => 'Email sent']);
+    }
+
 }
