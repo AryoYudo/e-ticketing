@@ -56,8 +56,11 @@ class AuthController extends Controller
 
             // Step 5: Simpan session
             $request->session()->put('loggedInUser', [
+                'id' => $admin->id,
                 'email' => $admin->email,
+                'name' => $admin->name ?? null,
             ]);
+
 
             return response()->json([
                 'status' => 200,

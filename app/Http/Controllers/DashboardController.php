@@ -34,7 +34,6 @@ class DashboardController extends Controller
                     'ticket_types.ticket_name as ticket_type'
                 )
                 ->orderBy('orders.order_date', 'desc')
-                ->limit(10)
                 ->get();
 
             // Hitung summary
