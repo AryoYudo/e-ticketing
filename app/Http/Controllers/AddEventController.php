@@ -14,7 +14,6 @@ class AddEventController extends Controller
     {
         try {
             $search = $request->input('search');
-
             $bindings = [];
             $searchSql = '';
 
@@ -58,12 +57,20 @@ class AddEventController extends Controller
 
             $events = DB::select($sql, $bindings);
 
-            // dd($events); // Kalau mau debug
+            // Jika request via AJAX (buat search live)
+            if ($request->ajax()) {
+                return response()->view('dashboard.partials.eventTable', compact('events'));
+            }
 
+            // Untuk page full
             return view('dashboard.listEvent', compact('events', 'search'));
+
         } catch (\Exception $e) {
             Log::error('Gagal memuat daftar event: ' . $e->getMessage());
-            return back()->with('error', 'Terjadi kesalahan saat memuat data event.');
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat memuat data event.',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -128,7 +135,7 @@ class AddEventController extends Controller
                 'status' => 200,
                 'message' => 'Event dan tiket berhasil ditambahkan.',
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Add Event Failed: ' . $e->getMessage());
             return response()->json([

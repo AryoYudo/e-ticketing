@@ -97,7 +97,7 @@
             </div>
 
             <div class="tab-pane d-none" id="map" role="tabpanel">
-                <p>Pemetaan lokasi tempat duduk atau venue akan ditampilkan di sini.</p>
+                <img src="{{ asset('storage/' . $event->picture_seat) }}" class="card-img-top" style="border-radius: 20px;">
             </div>
         </div>
     @else
