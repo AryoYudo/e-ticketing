@@ -26,9 +26,6 @@ use App\Http\Controllers\AddEventController;
 
 Route::get('/', [StartController::class, 'start']);
 
-// {auth admin}
-Route::get('/auth', [AuthController::class, 'auth'])->name('auth');
-Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 
 Route::get('/select-event', [EventController::class, 'events'])->name('events');
 Route::get('/detail/{id}', [DetailController::class, 'detail'])->name('detail');
@@ -39,10 +36,17 @@ Route::post('/order_request/{ticket_id}', [BuyController::class, 'orderRequest']
 Route::post('/midtrans/notification', [MidtransController::class, 'handleNotification']);
 
 // {evets admin}
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-Route::get('/listEvents', [DashboardController::class, 'listEvents'])->name('listEvents');
+// {auth admin}
+Route::get('/auth', [AuthController::class, 'auth'])->name('auth');
+Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 
-Route::get('/showEventTabel', [AddEventController::class, 'showEventTabel'])->name('showEventTabel');
-Route::post('/addEvent', [AddEventController::class, 'addEvent'])->name('addEvent');
-Route::delete('/destroy/{id}', [AddEventController::class, 'destroy'])->name('destroy');
-Route::put('/editEvent/{id}', [AddEventController::class, 'editEvent'])->name('editEvent');
+// Group route yang butuh login
+Route::middleware(['admin.auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/listEvents', [DashboardController::class, 'listEvents'])->name('listEvents');
+    Route::get('/showEventTabel', [AddEventController::class, 'showEventTabel'])->name('showEventTabel');
+    Route::post('/addEvent', [AddEventController::class, 'addEvent'])->name('addEvent');
+    Route::delete('/destroy/{id}', [AddEventController::class, 'destroy'])->name('destroy');
+    Route::put('/editEvent/{id}', [AddEventController::class, 'editEvent'])->name('editEvent');
+});
+

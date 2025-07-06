@@ -92,41 +92,41 @@
                             <p>Please provide correct and complete information in the fields below.</p>
                             <form id="eventForm">
                                 <div class="mb-3">
-                                    <label class="form-label">Title *</label>
-                                    <input id="inputTitle" type="text" class="form-control" placeholder="Input Event Title">
+                                    <label class="form-label">Title <span style="color:red">*</span></label>
+                                    <input id="inputTitle" type="text" class="form-control" required placeholder="Input Event Title">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Short Description (Max. 30) *</label>
-                                    <input id="inputShortDes" type="text" class="form-control" placeholder="Input Short Description">
+                                    <label class="form-label">Short Description (Max. 30) <span style="color:red">*</span></label>
+                                    <input id="inputShortDes" type="text" class="form-control" required placeholder="Input Short Description">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Date *</label>
+                                    <label class="form-label">Date <span style="color:red">*</span></label>
                                     <input id="idStartDate" type="date" class="form-control">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Location *</label>
-                                    <input id="idLocation" type="text" class="form-control" placeholder="Input Event Location">
+                                    <label class="form-label">Location <span style="color:red">*</span></label>
+                                    <input id="idLocation" type="text" class="form-control" required placeholder="Input Event Location">
                                 </div>
 
                                 <div id="ticketTypesContainer">
                                     <div class="row mb-3 ticket-group">
                                         <div class="col-md-4">
-                                            <label class="form-label">Title Type *</label>
-                                            <input type="text" class="form-control ticket_name" placeholder="Input Title Type">
+                                            <label class="form-label">Title Type <span style="color:red">*</span></label>
+                                            <input type="text" class="form-control ticket_name" required placeholder="Input Title Type">
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label">Price *</label>
+                                            <label class="form-label">Price <span style="color:red">*</span></label>
                                             <div class="input-group">
                                                 <span class="input-group-text">Rp</span>
-                                                <input type="number" class="form-control price" value="0">
+                                                <input type="number" class="form-control price" required value="0">
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Total Seat *</label>
-                                            <input type="number" class="form-control total_seat" value="0">
+                                            <label class="form-label">Total Seat <span style="color:red">*</span></label>
+                                            <input type="number" class="form-control total_seat" required value="0">
                                         </div>
                                         <div class="col-md-1 d-flex align-items-end">
                                             <button type="button" class="btn btn-danger btnRemoveTicket">X</button>
@@ -139,18 +139,18 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Description *</label>
-                                    <textarea id="idDescription" class="form-control" rows="4" placeholder="Input Description"></textarea>
+                                    <label class="form-label">Description <span style="color:red">*</span></label>
+                                    <textarea id="idDescription" class="form-control" rows="4" required placeholder="Input Description"></textarea>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Thumbnail Event *</label>
-                                    <input id="idPictureEvent" type="file" class="form-control">
+                                    <label class="form-label">Thumbnail Event <span style="color:red">*</span></label>
+                                    <input id="idPictureEvent" type="file" required class="form-control">
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Upload Seat Mapping Image</label>
-                                    <input id="idPictureSeat" type="file" class="form-control">
+                                    <input id="idPictureSeat" type="file" required class="form-control">
                                 </div>
                             </form>
                         </div>
@@ -160,6 +160,7 @@
                     </div>
                 </div>
             </div>
+
 
             @if(isset($events))
                 @foreach($events as $index => $event)

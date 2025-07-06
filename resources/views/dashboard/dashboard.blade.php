@@ -2,6 +2,40 @@
 
 @section('content')
 <style>
+    .dataTables_wrapper .dataTables_paginate .page-item .page-link {
+        color: #a78bfa !important;
+        background-color: transparent !important;
+        border: none !important;
+        font-weight: 500;
+        margin: 0 2px;
+        border-radius: 8px;
+    }
+
+    /* Hover */
+    .dataTables_wrapper .dataTables_paginate .page-item .page-link:hover {
+        background-color: rgba(167, 139, 250, 0.1) !important;
+        color: #7c3aed !important;
+    }
+
+    /* Active page */
+    .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+        color: #a78bfa !important;
+        background-color: transparent !important;
+        text-decoration: underline;
+        font-weight: bold;
+        box-shadow: none !important;
+    }
+
+    /* Disable focus outline */
+    .dataTables_wrapper .dataTables_paginate .page-link:focus {
+        box-shadow: none !important;
+    }
+
+    /* Previous / Next arrows */
+    .dataTables_wrapper .dataTables_paginate .page-item.previous .page-link,
+    .dataTables_wrapper .dataTables_paginate .page-item.next .page-link {
+        color: #a78bfa !important;
+    }
 
 </style>
 <div class="container-fluid py-4">
@@ -37,7 +71,7 @@
             {{-- Sold Ticket List --}}
             <div class="bg-white p-4 rounded-4 shadow-sm">
                 <h5 class="fw-bold mb-4">Sold Ticket List</h5>
-                <table id="ticketTable" class="table table-hover shadow-sm">
+                <table id="ticketTable" class="table dataTables_wrapper table-hover shadow-sm">
                     <thead>
                         <tr>
                             <th>No</th>
